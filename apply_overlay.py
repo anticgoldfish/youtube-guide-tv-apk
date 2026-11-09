@@ -106,5 +106,17 @@ fragment.write_text(src)
 app_gradle=TV/'build.gradle'
 replace_exact(app_gradle,'applicationId "org.smarttube.stable"','applicationId "com.youtubeguide.smarttube"')
 
+# SmartTube's original google-services.json registers its own Android package IDs.
+# The guide is a separate app (com.youtubeguide.smarttube), so that Firebase
+# config cannot be used and triggers processStstableDebugGoogleServices failure.
+# SmartTube's build.gradle applies Google Services / Crashlytics only when the
+# root google-services.json exists for the stable/beta build. Remove the cloned
+# upstream config BEFORE Gradle evaluates the project; no Firebase keys or new
+# Firebase project are necessary to build YouTube Guide.
+upstream_google_services = TV / 'google-services.json'
+if upstream_google_services.is_file():
+    upstream_google_services.unlink()
+    print('Removed upstream Firebase config (package ID does not match YouTube Guide)')
+
 # Keep the SmartTube MIT attribution and original third-party notices intact.
 print('Applied YouTube Guide overlay to',ROOT)
